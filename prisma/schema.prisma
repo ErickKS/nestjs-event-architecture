@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum OrderStatus {
+  PAYMENT_PENDING
+  PAID
+  COMPLETED
+  CANCELED
+}
+
+model Order {
+  id        String      @id @default(uuid())
+  total     Float
+  status    OrderStatus
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+
+  Payment Payment[]
+
+  @@map("orders")
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  FAILED
+  REFUNDED
+}
+
+model Payment {
+  id        String        @id @default(uuid())
+  orderId   String        @map("order_id")
+  amount    Float
+  status    PaymentStatus
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@map("payments")
+}
