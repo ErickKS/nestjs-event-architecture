@@ -24,12 +24,20 @@ export interface CreatePaymentProps {
   updatedAt?: Date
 }
 
+export interface RestorePaymentProps {
+  orderId: string
+  amount: number
+  status: string
+  createdAt: Date
+  updatedAt: Date
+}
+
 export class Payment extends Entity<PaymentProps> {
   get orderId(): string {
     return this.props.orderId.value
   }
 
-  get total(): number {
+  get amount(): number {
     return this.props.amount
   }
 
@@ -59,6 +67,20 @@ export class Payment extends Entity<PaymentProps> {
         updatedAt: props.updatedAt ?? new Date(),
       },
       UniqueEntityID.create(id)
+    )
+    return payment
+  }
+
+    static restore(props: RestorePaymentProps, id: string): Payment {
+    const payment = new Payment(
+      {
+        orderId: UniqueEntityID.restore(props.orderId),
+        amount: props.amount,
+        status: Payment.parseStatus(props.status),
+        createdAt: props.createdAt,
+        updatedAt: props.updatedAt,
+      },
+      UniqueEntityID.restore(id)
     )
     return payment
   }

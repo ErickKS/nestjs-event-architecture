@@ -11,6 +11,7 @@ interface CreatePaymentOutput {
   payment: Payment
 }
 
+
 @Injectable()
 export class CreatePaymentUseCase {
   constructor(private readonly paymentRepository: PaymentRepository) {}

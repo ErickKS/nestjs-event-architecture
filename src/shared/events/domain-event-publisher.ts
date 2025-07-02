@@ -40,4 +40,11 @@ export class DomainEventPublisher {
       subscriber(event as any)
     }
   }
+
+  public publishAggregateEvents(aggregate: { domainEvents: DomainEvent<any>[], clearEvents: () => void }): void {
+    for (const event of aggregate.domainEvents) {
+      this.publish(event)
+    }
+    aggregate.clearEvents()
+  }
 }

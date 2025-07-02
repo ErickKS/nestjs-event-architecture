@@ -2,6 +2,7 @@ import { Entity } from '@/shared/entities/entity'
 import { DomainEventPublisher } from '@/shared/events/domain-event-publisher'
 import { UniqueEntityID } from '@/shared/value-objects/unique-entity-id'
 import { OrderCreatedEvent } from './events/order-created-envent'
+import { AggregateRoot } from '@/shared/entities/aggregate-root'
 
 export enum OrderStatusEnum {
   PAYMENT_PENDING = 'PAYMENT_PENDING',
@@ -24,7 +25,14 @@ export interface CreateOrderProps {
   updatedAt?: Date
 }
 
-export class Order extends Entity<OrderProps> {
+export interface RestoreOrderProps {
+  total: number
+  status: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+export class Order extends AggregateRoot<OrderProps> {
   get total(): number {
     return this.props.total
   }
@@ -55,7 +63,20 @@ export class Order extends Entity<OrderProps> {
       },
       UniqueEntityID.create(id)
     )
-    DomainEventPublisher.instance.publish(this.createOrderCreatedEvent(order))
+    order.addDomainEvent(this.createOrderCreatedEvent(order))
+    return order
+  }
+
+  static restore(props: RestoreOrderProps, id: string): Order {
+    const order = new Order(
+      {
+        total: props.total,
+        status: Order.parseStatus(props.status),
+        createdAt: props.createdAt,
+        updatedAt: props.updatedAt,
+      },
+      UniqueEntityID.restore(id)
+    )
     return order
   }
 

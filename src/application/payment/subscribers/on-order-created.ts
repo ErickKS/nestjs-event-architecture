@@ -7,9 +7,10 @@ export class OnOrderCreatedPaymentSubscriber {
   constructor(private readonly createPaymentUseCase: CreatePaymentUseCase) {}
 
   async handle(event: OrderCreatedEvent): Promise<void> {
-    await this.createPaymentUseCase.execute({
+    const input = {
       orderId: event.payload.orderId,
       amount: event.payload.total,
-    })
+    }
+    await this.createPaymentUseCase.execute(input)
   }
 }
