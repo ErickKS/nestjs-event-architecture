@@ -27,7 +27,7 @@ export class CreateOrderController {
   async handle(@Body() body: CreateOrderBodySchema) {
     try {
       const { order } = await this.createOrder.execute(body)
-      return OrderPresenter.toHTTP(order)
+      return OrderPresenter.toMinimalHTTP(order)
     } catch (error) {
       throw new UnprocessableEntityException(error.message)
     }
