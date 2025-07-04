@@ -1,8 +1,8 @@
+import { PaymentRepository } from '@/application/payment/repositories/order-repository'
 import { Payment } from '@/domain/payment/payment'
 import { Injectable } from '@nestjs/common'
 import { PrismaPaymentMapper } from '../mappers/prisma-payment-mapper'
 import { PrismaService } from '../prisma.service'
-import { PaymentRepository } from '@/application/payment/repositories/order-repository'
 
 @Injectable()
 export class PrismaPaymentRepository implements PaymentRepository {
@@ -22,6 +22,14 @@ export class PrismaPaymentRepository implements PaymentRepository {
       await tx.payment.create({
         data,
       })
+    })
+  }
+
+  async update(payment: Payment): Promise<void> {
+    const data = PrismaPaymentMapper.toPrisma(payment)
+    await this.prisma.payment.update({
+      where: { id: payment.id },
+      data,
     })
   }
 }
