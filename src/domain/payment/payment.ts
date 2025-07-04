@@ -1,5 +1,6 @@
-import { Entity } from '@/shared/entities/entity'
+import { AggregateRoot } from '@/shared/entities/aggregate-root'
 import { UniqueEntityID } from '@/shared/value-objects/unique-entity-id'
+import { PaymentUpdatedEvent } from './events/payment-updated-event'
 
 export enum PaymentStatusEnum {
   PENDING = 'PENDING',
@@ -32,7 +33,7 @@ export interface RestorePaymentProps {
   updatedAt: Date
 }
 
-export class Payment extends Entity<PaymentProps> {
+export class Payment extends AggregateRoot<PaymentProps> {
   get orderId(): string {
     return this.props.orderId.value
   }
@@ -41,8 +42,13 @@ export class Payment extends Entity<PaymentProps> {
     return this.props.amount
   }
 
-  get status(): string {
+  get status(): PaymentStatusEnum {
     return this.props.status
+  }
+
+  private set status(status: PaymentStatusEnum) {
+    this.props.status = status
+    this.touch()
   }
 
   get createdAt(): Date {
@@ -71,7 +77,7 @@ export class Payment extends Entity<PaymentProps> {
     return payment
   }
 
-    static restore(props: RestorePaymentProps, id: string): Payment {
+  static restore(props: RestorePaymentProps, id: string): Payment {
     const payment = new Payment(
       {
         orderId: UniqueEntityID.restore(props.orderId),
@@ -89,5 +95,19 @@ export class Payment extends Entity<PaymentProps> {
     const isValidPaymentStatus = Object.values(PaymentStatusEnum).includes(aString as PaymentStatusEnum)
     if (!isValidPaymentStatus) throw new Error(`Invalid payment status: ${aString}`)
     return aString as PaymentStatusEnum
+  }
+
+  updateStatus(status: PaymentStatusEnum) {
+    if (this.status === status) return
+    this.status = status
+    this.addDomainEvent(Payment.createPaymentUpdatedEvent(this))
+  }
+
+  private static createPaymentUpdatedEvent(payment: Payment) {
+    return new PaymentUpdatedEvent({
+      paymentId: payment.id,
+      orderId: payment.orderId,
+      status: payment.status,
+    })
   }
 }

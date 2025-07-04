@@ -1,7 +1,6 @@
 export const EVENTS = {
   ORDER_CREATED: 'order.created',
-  PAYMENT_APPROVED: 'payment.approved',
-  PAYMENT_REJECTED: 'payment.rejected',
+  PAYMENT_UPDATED: 'payment.updated',
 } as const
 
 export type EventTypes = (typeof EVENTS)[keyof typeof EVENTS]
