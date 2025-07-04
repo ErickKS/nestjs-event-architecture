@@ -15,15 +15,15 @@ class FakeOrderCreatedEvent extends DomainEvent<FakeOrderCreatedEventProps> {
   }
 }
 
-interface FakePaymentApprovedEventProps {
+interface FakePaymentUpdatedEventProps {
   paymentId: string
 }
 
-class FakePaymentApprovedEvent extends DomainEvent<FakePaymentApprovedEventProps> {
-  payload: FakePaymentApprovedEventProps
+class FakePaymentUpdatedEvent extends DomainEvent<FakePaymentUpdatedEventProps> {
+  payload: FakePaymentUpdatedEventProps
 
-  constructor(props: FakePaymentApprovedEventProps) {
-    super(EVENTS.PAYMENT_APPROVED)
+  constructor(props: FakePaymentUpdatedEventProps) {
+    super(EVENTS.PAYMENT_UPDATED)
     this.payload = props
   }
 }
@@ -49,11 +49,11 @@ describe('DomainEventPublisher', () => {
 
   it('should notify one subscriber per topic', () => {
     const OrderCreatedEvent = new FakeOrderCreatedEvent({ orderId: 'order-1' })
-    const paymentApprovedEvent = new FakePaymentApprovedEvent({ paymentId: 'payment-1' })
+    const paymentApprovedEvent = new FakePaymentUpdatedEvent({ paymentId: 'payment-1' })
     const subscriber1 = vi.fn()
     const subscriber2 = vi.fn()
     DomainEventPublisher.instance.subscribe('order.created', subscriber1)
-    DomainEventPublisher.instance.subscribe('payment.approved', subscriber2)
+    DomainEventPublisher.instance.subscribe('payment.updated', subscriber2)
     expect(DomainEventPublisher.instance['subscribers'].size).toBe(2)
     DomainEventPublisher.instance.publish(OrderCreatedEvent)
     DomainEventPublisher.instance.publish(paymentApprovedEvent)

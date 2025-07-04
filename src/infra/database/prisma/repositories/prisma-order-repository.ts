@@ -24,4 +24,12 @@ export class PrismaOrderRepository implements OrderRepository {
       })
     })
   }
+
+  async update(order: Order): Promise<void> {
+    const data = PrismaOrderMapper.toPrisma(order)
+    await this.prisma.order.update({
+      where: { id: order.id },
+      data,
+    })
+  }
 }

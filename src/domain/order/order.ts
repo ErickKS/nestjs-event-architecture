@@ -1,8 +1,6 @@
-import { Entity } from '@/shared/entities/entity'
-import { DomainEventPublisher } from '@/shared/events/domain-event-publisher'
+import { AggregateRoot } from '@/shared/entities/aggregate-root'
 import { UniqueEntityID } from '@/shared/value-objects/unique-entity-id'
 import { OrderCreatedEvent } from './events/order-created-envent'
-import { AggregateRoot } from '@/shared/entities/aggregate-root'
 
 export enum OrderStatusEnum {
   PAYMENT_PENDING = 'PAYMENT_PENDING',
@@ -39,6 +37,11 @@ export class Order extends AggregateRoot<OrderProps> {
 
   get status(): string {
     return this.props.status
+  }
+
+  private set status(status: OrderStatusEnum) {
+    this.props.status = status
+    this.touch()
   }
 
   get createdAt(): Date {
@@ -91,5 +94,10 @@ export class Order extends AggregateRoot<OrderProps> {
     const isValidOrderStatus = Object.values(OrderStatusEnum).includes(aString as OrderStatusEnum)
     if (!isValidOrderStatus) throw new Error(`Invalid order status: ${aString}`)
     return aString as OrderStatusEnum
+  }
+
+  updateStatus(status: OrderStatusEnum) {
+    if (this.status === status) return
+    this.status = status
   }
 }
